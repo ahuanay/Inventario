@@ -36,7 +36,7 @@ export class DestroyAlmacen implements OnInit {
                 this.loadingSubmit = false;
                 this.messageService.add({
                     severity: 'success',
-                    summary: 'Success',
+                    summary: 'ÉXITO',
                     detail: 'Eliminado con éxito',
                     life: 3000,
                 });

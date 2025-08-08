@@ -138,7 +138,7 @@ export class NewProducto implements OnInit {
             this.loadingSubmit = false;
             this.messageService.add({
                 severity: 'error',
-                summary: 'Error',
+                summary: 'ERROR',
                 detail: 'Complete los campos',
                 life: 3000,
             });
@@ -172,7 +172,7 @@ export class NewProducto implements OnInit {
             (response) => {
                 this.messageService.add({
                     severity: 'success',
-                    summary: 'Success',
+                    summary: 'ÉXITO',
                     detail: 'Guardado con éxito',
                     life: 3000,
                 });
@@ -193,7 +193,7 @@ export class NewProducto implements OnInit {
             (response) => {
                 this.messageService.add({
                     severity: 'success',
-                    summary: 'Success',
+                    summary: 'ÉXITO',
                     detail: 'Actualizado con éxito',
                     life: 3000,
                 });

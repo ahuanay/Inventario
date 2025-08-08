@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
+
 import { MenuItem } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
 import { Menubar } from 'primeng/menubar';
 
 @Component({
     selector: 'app-header',
-    imports: [RouterModule, Menubar],
+    imports: [RouterModule, Menubar, ButtonModule],
     templateUrl: './header.html',
     styleUrl: './header.css',
 })
@@ -35,5 +37,12 @@ export class Header implements OnInit {
                 routerLink: '/movimientos',
             },
         ];
+    }
+
+    public isDark: boolean = false;
+    toggleDarkMode() {
+        this.isDark = !this.isDark;
+        const element: any = document.querySelector('html');
+        element.classList.toggle('app-theme-dark');
     }
 }

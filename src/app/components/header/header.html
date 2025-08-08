@@ -1,1 +1,16 @@
-<p-menubar [model]="items"></p-menubar>
+<p-menubar [model]="items">
+    <ng-template #end>
+        <div class="flex items-center gap-2">
+            <p-button
+                severity="info"
+                variant="outlined"
+                size="small"
+                [rounded]="true"
+                [icon]="isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon'"
+                [ariaLabel]="isDark ? 'Modo claro' : 'Modo oscuro'"
+                class="m-1"
+                (onClick)="toggleDarkMode()"
+            ></p-button>
+        </div>
+    </ng-template>
+</p-menubar>

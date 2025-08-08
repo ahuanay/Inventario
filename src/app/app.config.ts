@@ -12,6 +12,7 @@ import {
     withEventReplay,
 } from '@angular/platform-browser';
 import { routes } from './app.routes';
+import esLocaleData from 'primelocale/es.json';
 
 import Aura from '@primeuix/themes/aura';
 
@@ -19,8 +20,16 @@ export const appConfig: ApplicationConfig = {
     providers: [
         provideAnimationsAsync(),
         providePrimeNG({
+            translation: esLocaleData.es,
             theme: {
                 preset: Aura,
+                options: {
+                    darkModeSelector: '.app-theme-dark',
+                    cssLayer: {
+                        name: 'primeng',
+                        order: 'theme, base, primeng',
+                    },
+                },
             },
         }),
         provideHttpClient(withFetch()),

@@ -1,6 +1,6 @@
-# Demo Inventario - Backend (.NET 8 API) + Frontend (Angular 20 SSR)
+# Demo Inventario - Backend (.NET 8 API) + Frontend (Angular 20)
 
-Este proyecto es una aplicación demo de inventariado que consta de un backend desarrollado en **ASP.NET Core Web API (.NET 8)** y un frontend realizado en **Angular 20 con Server-Side Rendering (SSR)**.
+Este proyecto es una aplicación demo de inventariado que consta de un backend desarrollado en **ASP.NET Core Web API (.NET 8)** y un frontend realizado en **Angular 20**.
 
 ---
 
@@ -18,7 +18,6 @@ El sistema permite gestionar el inventario de productos, almacenes y los movimie
   - SQL Server (o base de datos compatible)
 - Frontend:
   - Angular 20
-  - Angular Universal (SSR)
 - Control de versiones: GitHub ([Backend](https://github.com/ahuanay/Inventario/tree/InventarioApi), [Frontend](https://github.com/ahuanay/Inventario/tree/InventarioWeb))
 
 ---
@@ -98,10 +97,9 @@ Base URL: `/api/v1`
 
 ---
 
-## ⚙️ Frontend - Angular 20 SSR
+## ⚙️ Frontend - Angular 20
 
 - Aplicación Angular que consume la API REST para mostrar y manipular almacenes, productos y movimientos.
-- Server-Side Rendering (SSR) con Angular Universal para mejorar SEO y performance.
 - Rutas y componentes para CRUD de cada entidad.
 - Filtros de búsqueda, paginación y validación de formularios.
 
@@ -122,7 +120,7 @@ Base URL: `/api/v1`
    ```bash
     dotnet run
 
-### Frontend (Angular 20 SSR)
+### Frontend (Angular 20)
 1. Clonar repo frontend:
    ```bash
    git clone https://github.com/ahuanay/Inventario.git -b InventarioWeb
@@ -130,9 +128,9 @@ Base URL: `/api/v1`
 3. Instalar dependencias:
    ```bash
    npm install
-5. Ejecutar SSR:
+5. Ejecutar:
    ```bash
-   npm run dev:ssr
+   ng serve
 
 ## 🌐 Dónde probar el demo
 

@@ -139,7 +139,7 @@ Puedes probar la aplicación de dos formas:
 - **Localmente**, ejecutando backend y frontend siguiendo los pasos anteriores.
 
 - **Online**, visitando el frontend desplegado en:  
-  [https://inventarioweb-9ecn.onrender.com/](https://inventarioweb-9ecn.onrender.com/)
+  [https://ahuanay-inventario.netlify.app/](https://ahuanay-inventario.netlify.app/)
 
 > ⚠️ Recuerda que para probar completamente la aplicación local, debes tener la API backend corriendo y configurada correctamente.
 
@@ -147,4 +147,4 @@ Puedes probar la aplicación de dos formas:
 Este proyecto es solo una demo y puede ser adaptado según necesidades.
 
 🤝 Contacto
-Para dudas o sugerencias, puedes contactarme vía GitHub: ahuanay
+Para dudas o sugerencias, puedes contactarme vía GitHub: [ahuanay](https://github.com/ahuanay)

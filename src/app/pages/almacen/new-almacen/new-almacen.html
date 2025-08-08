@@ -1,0 +1,193 @@
+<div class="grid grid-cols-12 gap-4">
+    <div class="col-span-12">
+        <form [formGroup]="registerForm" action="javascript:;">
+            <div class="grid grid-cols-12 gap-4 p-6 rounded shadow-md">
+                <div class="col-span-12 flex items-center gap-2">
+                    <p-toggleswitch
+                        formControlName="es_activo"
+                    ></p-toggleswitch>
+                    <label class="font-medium">¿Es activo?</label>
+                </div>
+                <div class="col-span-12 md:col-span-4">
+                    <div class="flex flex-col gap-1">
+                        <label for="codigo" class="font-medium">Código</label>
+                        <input
+                            pInputText
+                            type="text"
+                            id="codigo"
+                            formControlName="codigo"
+                            autocomplete="off"
+                            [invalid]="isInvalid('codigo')"
+                            class="p-inputtext"
+                        />
+                        @if (isInvalid('codigo')) {
+                        <p-message
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                            >Obligatorio.</p-message
+                        >
+                        }
+                    </div>
+                </div>
+                <div class="col-span-12 md:col-span-8">
+                    <div class="flex flex-col gap-1">
+                        <label for="nombre" class="font-medium">Nombre</label>
+                        <input
+                            pInputText
+                            type="text"
+                            id="nombre"
+                            formControlName="nombre"
+                            autocomplete="off"
+                            [invalid]="isInvalid('nombre')"
+                            class="p-inputtext"
+                        />
+                        @if (isInvalid('nombre')) {
+                        <p-message
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                            >Obligatorio.</p-message
+                        >
+                        }
+                    </div>
+                </div>
+                <div class="col-span-12 md:col-span-4">
+                    <div class="flex flex-col gap-1">
+                        <label for="departamento" class="font-medium"
+                            >Departamento</label
+                        >
+                        <div class="card flex justify-center">
+                            <p-select
+                                [options]="listDepartamentos"
+                                formControlName="departamento"
+                                optionLabel="nombre"
+                                placeholder="Seleccione"
+                                class="w-full"
+                                appendTo="body"
+                                [showClear]="true"
+                                [filter]="true"
+                                filterBy="nombre"
+                                [invalid]="isInvalid('departamento')"
+                            ></p-select>
+                        </div>
+                        @if (isInvalid('departamento')) {
+                        <p-message
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                            >Obligatorio.</p-message
+                        >
+                        }
+                    </div>
+                </div>
+                <div class="col-span-12 md:col-span-4">
+                    <div class="flex flex-col gap-1">
+                        <label for="provincia" class="font-medium"
+                            >Provincia</label
+                        >
+                        <div class="card flex justify-center">
+                            <p-select
+                                [options]="getProvinciasByDetartamento()"
+                                formControlName="provincia"
+                                optionLabel="nombre"
+                                placeholder="Seleccione"
+                                class="w-full"
+                                appendTo="body"
+                                [showClear]="true"
+                                [filter]="true"
+                                filterBy="nombre"
+                                [invalid]="isInvalid('provincia')"
+                                [disabled]="
+                                    registerForm.value.departamento == null
+                                "
+                            ></p-select>
+                        </div>
+                        @if (isInvalid('provincia')) {
+                        <p-message
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                            >Obligatorio.</p-message
+                        >
+                        }
+                    </div>
+                </div>
+                <div class="col-span-12 md:col-span-4">
+                    <div class="flex flex-col gap-1">
+                        <label for="distrito" class="font-medium"
+                            >Distrito</label
+                        >
+                        <div class="card flex justify-center">
+                            <p-select
+                                [options]="getDistritosByProvincia()"
+                                formControlName="distrito"
+                                optionLabel="nombre"
+                                placeholder="Seleccione"
+                                class="w-full"
+                                appendTo="body"
+                                [showClear]="true"
+                                [filter]="true"
+                                filterBy="nombre"
+                                [invalid]="isInvalid('distrito')"
+                                [disabled]="
+                                    registerForm.value.provincia == null
+                                "
+                            ></p-select>
+                        </div>
+                        @if (isInvalid('distrito')) {
+                        <p-message
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                            >Obligatorio.</p-message
+                        >
+                        }
+                    </div>
+                </div>
+                <div class="col-span-12 md:col-span-12">
+                    <div class="flex flex-col gap-1">
+                        <label for="direccion" class="font-medium"
+                            >Dirección</label
+                        >
+                        <input
+                            pInputText
+                            type="text"
+                            id="direccion"
+                            formControlName="direccion"
+                            autocomplete="off"
+                            [invalid]="isInvalid('direccion')"
+                            class="p-inputtext"
+                        />
+                        @if (isInvalid('direccion')) {
+                        <p-message
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                            >Obligatorio.</p-message
+                        >
+                        }
+                    </div>
+                </div>
+                <div class="col-span-12">
+                    <div class="flex justify-end gap-2 mt-4">
+                        <p-button
+                            label="Cerrar"
+                            icon="fa-solid fa-times"
+                            severity="secondary"
+                            (onClick)="onClose()"
+                        ></p-button>
+
+                        <p-button
+                            label="Guardar"
+                            icon="fa-solid fa-save"
+                            severity="primary"
+                            [loading]="loadingSubmit"
+                            (onClick)="onSubmit()"
+                        ></p-button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

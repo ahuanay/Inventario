@@ -1,0 +1,31 @@
+<div class="grid grid-cols-12 gap-4">
+    <div class="col-span-12">
+        <div class="grid grid-cols-12 gap-4 p-6 rounded shadow-md">
+            <div class="col-span-12 flex items-center gap-2">
+                <span><i class="fa-solid fa-exclamation-triangle"></i></span>
+                <label class="font-medium"
+                    >¿Estas seguro de proceder con la eliminación? Este proceso
+                    es irreversible</label
+                >
+            </div>
+            <div class="col-span-12">
+                <div class="flex justify-end gap-2 mt-4">
+                    <p-button
+                        label="Cerrar"
+                        icon="fa-solid fa-times"
+                        severity="secondary"
+                        class="p-button-secondary"
+                        (onClick)="onClose()"
+                    ></p-button>
+                    <p-button
+                        label="Eliminar"
+                        icon="fa-solid fa-save"
+                        severity="danger"
+                        [loading]="loadingSubmit"
+                        (onClick)="onSubmit()"
+                    ></p-button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

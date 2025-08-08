@@ -1,0 +1,227 @@
+<div class="grid grid-cols-12 gap-4">
+    <div class="col-span-12">
+        <form [formGroup]="registerForm" action="javascript:;">
+            <div class="grid grid-cols-12 gap-4 p-6 rounded shadow-md">
+                <div class="col-span-12 flex items-center gap-2">
+                    <p-toggleswitch
+                        formControlName="es_activo"
+                    ></p-toggleswitch>
+                    <label class="font-medium">¿Es activo?</label>
+                </div>
+                <div class="col-span-12 md:col-span-4">
+                    <div class="flex flex-col gap-1">
+                        <label for="codigo" class="font-medium">Código</label>
+                        <input
+                            pInputText
+                            type="text"
+                            id="codigo"
+                            formControlName="codigo"
+                            autocomplete="off"
+                            [invalid]="isInvalid('codigo')"
+                            class="p-inputtext"
+                            (change)="setNombreLargo()"
+                        />
+                        @if (isInvalid('codigo')) {
+                        <p-message
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                            >Obligatorio.</p-message
+                        >
+                        }
+                    </div>
+                </div>
+                <div class="col-span-12 md:col-span-8">
+                    <div class="flex flex-col gap-1">
+                        <label for="nombre" class="font-medium">Nombre</label>
+                        <input
+                            pInputText
+                            type="text"
+                            id="nombre"
+                            formControlName="nombre"
+                            autocomplete="off"
+                            [invalid]="isInvalid('nombre')"
+                            class="p-inputtext"
+                            (change)="setNombreLargo()"
+                        />
+                        @if (isInvalid('nombre')) {
+                        <p-message
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                            >Obligatorio.</p-message
+                        >
+                        }
+                    </div>
+                </div>
+                <div class="col-span-2">
+                    <div class="flex flex-col gap-1">
+                        <label for="cantidad" class="font-medium"
+                            >Cantidad</label
+                        >
+                        <p-inputnumber
+                            inputId="cantidad"
+                            formControlName="cantidad"
+                            mode="decimal"
+                            [useGrouping]="false"
+                            [min]="0"
+                            [invalid]="isInvalid('cantidad')"
+                        ></p-inputnumber>
+                        @if (isInvalid('cantidad')) {
+                        <p-message
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                            >Obligatorio.</p-message
+                        >
+                        }
+                    </div>
+                </div>
+                <div class="col-span-2">
+                    <div class="flex flex-col gap-1">
+                        <label for="unidad_medida" class="font-medium"
+                            >Unidad</label
+                        >
+                        <p-select
+                            [options]="listUnidadMedidas"
+                            formControlName="unidad_medida"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Seleccione"
+                            class="w-full"
+                            appendTo="body"
+                            [showClear]="true"
+                            [invalid]="isInvalid('unidad_medida')"
+                            (onChange)="setNombreLargo()"
+                        ></p-select>
+                        @if (isInvalid('unidad_medida')) {
+                        <p-message
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                            >Obligatorio.</p-message
+                        >
+                        }
+                    </div>
+                </div>
+                <div class="col-span-8">
+                    <div class="flex flex-col gap-1">
+                        <label for="nombre_largo" class="font-medium"
+                            >Nombre largo</label
+                        >
+                        <input
+                            pInputText
+                            type="text"
+                            id="nombre_largo"
+                            formControlName="nombre_largo"
+                            autocomplete="off"
+                            [invalid]="isInvalid('nombre_largo')"
+                            class="p-inputtext"
+                        />
+                        @if (isInvalid('nombre_largo')) {
+                        <p-message
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                            >Obligatorio.</p-message
+                        >
+                        }
+                    </div>
+                </div>
+                <div class="col-span-12">
+                    <div class="flex flex-col gap-1">
+                        <label for="descripcion" class="font-medium"
+                            >Descripción</label
+                        >
+                        <div class="card flex justify-center">
+                            <textarea
+                                formControlName="descripcion"
+                                rows="5"
+                                cols="1000"
+                                pTextarea
+                                [autoResize]="true"
+                                [invalid]="isInvalid('descripcion')"
+                                maxlength="{{ descripcionLengthMax }}"
+                                (input)="
+                                    descripcionLength =
+                                        $any($event.target)?.value.length ?? 0
+                                "
+                            ></textarea>
+                        </div>
+                        <div class="text-right text-sm">
+                            {{ descripcionLength }} / {{ descripcionLengthMax }}
+                        </div>
+                        @if (isInvalid('descripcion')) {
+                        <p-message
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                            >Obligatorio.</p-message
+                        >
+                        }
+                    </div>
+                </div>
+                <div class="col-span-12">
+                    <div class="flex flex-col gap-2">
+                        <label for="img_base64" class="font-medium">
+                            Imagen
+                        </label>
+                        <div
+                            class="card flex flex-col items-center gap-4 p-4 border rounded-lg shadow-sm"
+                        >
+                            <p-fileupload
+                                #fu
+                                mode="basic"
+                                chooseLabel="Seleccionar imagen"
+                                chooseIcon="pi pi-upload"
+                                accept="image/*"
+                                maxFileSize="1000000"
+                                (onSelect)="onFileSelected($event)"
+                                [customUpload]="true"
+                                class="w-full max-w-xs"
+                            ></p-fileupload>
+
+                            <p-image
+                                [src]="registerForm.get('img_base64')?.value"
+                                alt="Imagen del producto"
+                                class="rounded-md shadow-md"
+                                style="
+                                    max-width: 250px;
+                                    max-height: 250px;
+                                    object-fit: contain;
+                                "
+                            ></p-image>
+                        </div>
+
+                        @if (isInvalid('img_base64')) {
+                        <p-message
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                            >Obligatorio.</p-message
+                        >
+                        }
+                    </div>
+                </div>
+                <div class="col-span-12">
+                    <div class="flex justify-end gap-2 mt-4">
+                        <p-button
+                            label="Cerrar"
+                            icon="fa-solid fa-times"
+                            severity="secondary"
+                            (onClick)="onClose()"
+                        ></p-button>
+
+                        <p-button
+                            label="Guardar"
+                            icon="fa-solid fa-save"
+                            severity="primary"
+                            [loading]="loadingSubmit"
+                            (onClick)="onSubmit()"
+                        ></p-button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

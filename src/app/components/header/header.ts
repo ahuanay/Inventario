@@ -28,13 +28,18 @@ export class Header implements OnInit {
             },
             {
                 label: 'Productos',
-                icon: 'fa-solid fa-box',
+                icon: 'fa-solid fa-rectangle-list',
                 routerLink: '/productos',
             },
             {
                 label: 'Movimientos',
                 icon: 'fa-solid fa-dolly',
                 routerLink: '/movimientos',
+            },
+            {
+                label: 'Stock',
+                icon: 'fa-solid fa-box',
+                routerLink: '/stock',
             },
         ];
     }

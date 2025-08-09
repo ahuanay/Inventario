@@ -1,0 +1,25 @@
+<div class="grid grid-cols-12 gap-6 p-4 rounded-lg shadow-md">
+    <div class="col-span-12 md:col-span-12">
+        <h2 class="text-xl font-semibold mb-4 text-center">
+            Entrada de productos por año
+        </h2>
+        <p-chart
+            type="bar"
+            [data]="chartDataEntrada"
+            [options]="options"
+            class="h-[30rem] rounded-lg shadow-lg bg-white p-4"
+        ></p-chart>
+    </div>
+
+    <div class="col-span-12 md:col-span-12 mt-8">
+        <h2 class="text-xl font-semibold mb-4 text-center">
+            Salida de productos por año
+        </h2>
+        <p-chart
+            type="bar"
+            [data]="chartDataSalida"
+            [options]="options"
+            class="h-[30rem] rounded-lg shadow-lg bg-white p-4"
+        ></p-chart>
+    </div>
+</div>

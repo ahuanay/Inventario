@@ -1,11 +1,56 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
+import { WebService } from '../../../service/web-service';
+import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { MessageService } from 'primeng/api';
 
 @Component({
-  selector: 'app-destroy-movimiento',
-  imports: [],
-  templateUrl: './destroy-movimiento.html',
-  styleUrl: './destroy-movimiento.css'
+    selector: 'app-destroy-movimiento',
+    imports: [ButtonModule, ToastModule],
+    templateUrl: './destroy-movimiento.html',
+    styleUrl: './destroy-movimiento.css',
 })
-export class DestroyMovimiento {
+export class DestroyMovimiento implements OnInit {
+    messageService = inject(MessageService);
 
+    public loadingSubmit = false;
+
+    public node: any = null;
+
+    constructor(
+        private _webService: WebService,
+        private ref: DynamicDialogRef,
+        public config: DynamicDialogConfig
+    ) {}
+
+    ngOnInit(): void {
+        this.loadingSubmit = false;
+        this.node = this.config.data?.node;
+    }
+
+    onSubmit() {
+        this.loadingSubmit = true;
+        this._webService.deleteMovimiento(this.node.id).subscribe(
+            (response) => {
+                this.loadingSubmit = false;
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'ÉXITO',
+                    detail: 'Eliminado con éxito',
+                    life: 3000,
+                });
+
+                this.onClose({
+                    type: 'deleted',
+                    data: null,
+                });
+            },
+            (error) => {}
+        );
+    }
+
+    onClose(data: any = null) {
+        this.ref.close(data);
+    }
 }

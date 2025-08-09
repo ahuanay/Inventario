@@ -94,7 +94,6 @@ export class NewProducto implements OnInit {
             nombre_largo: [null, Validators.required],
             descripcion: [null, Validators.required],
             img_base64: [null, Validators.required],
-            cantidad: [null, Validators.required],
             unidad_medida: [null, Validators.required],
         });
 
@@ -111,8 +110,6 @@ export class NewProducto implements OnInit {
         this.registerForm.get('nombre_largo')?.setValue(data.nombre_largo);
         this.registerForm.get('descripcion')?.setValue(data.descripcion);
         this.registerForm.get('img_base64')?.setValue(data.img_base64);
-        this.registerForm.get('cantidad')?.setValue(data.cantidad);
-        this.registerForm.get('cantidad')?.disable();
         this.registerForm.get('unidad_medida')?.setValue(data.unidad_medida);
         this.registerForm.get('unidad_medida')?.disable();
     }
@@ -123,10 +120,8 @@ export class NewProducto implements OnInit {
 
         this.registerForm.reset({
             es_activo: true,
-            cantidad: 1,
         });
 
-        this.registerForm.get('cantidad')?.enable();
         this.registerForm.get('unidad_medida')?.enable();
     }
 
@@ -155,7 +150,6 @@ export class NewProducto implements OnInit {
             nombre_largo: raw.nombre_largo,
             descripcion: raw.descripcion,
             img_base64: raw.img_base64,
-            cantidad: raw.cantidad,
             unidad_medida: raw.unidad_medida,
         };
 
@@ -210,24 +204,44 @@ export class NewProducto implements OnInit {
     }
 
     setNombreLargo() {
-        const codigo = this.registerForm.value.codigo;
-        const nombre = this.registerForm.value.nombre;
-        const unidad_medida = this.registerForm.value.unidad_medida?.label;
+        const raw = this.registerForm.getRawValue();
 
         this.registerForm
             .get('nombre_largo')
             ?.setValue(
-                [codigo, nombre, unidad_medida].filter(Boolean).join(' ')
+                [
+                    [raw.codigo, raw.nombre].filter(Boolean).join(' '),
+                    raw.unidad_medida,
+                ]
+                    .filter(Boolean)
+                    .join(' x ')
             );
     }
 
+    public errorDimensionesImagen: any = false;
     onFileSelected(event: any) {
         const file: File = event.files[0];
 
         if (file) {
             const reader = new FileReader();
             reader.onload = () => {
-                this.registerForm.get('img_base64')?.setValue(reader.result);
+                const base64 = reader.result as string;
+
+                const img = new Image();
+                img.onload = () => {
+                    const width = img.width;
+                    const height = img.height;
+
+                    if (width !== 1000 || height !== 1000) {
+                        this.errorDimensionesImagen = true;
+
+                        this.registerForm.get('img_base64')?.setValue(null);
+                    } else {
+                        this.errorDimensionesImagen = false;
+                        this.registerForm.get('img_base64')?.setValue(base64);
+                    }
+                };
+                img.src = base64;
             };
             reader.readAsDataURL(file);
         }

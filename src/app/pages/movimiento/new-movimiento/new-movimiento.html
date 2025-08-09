@@ -1,1 +1,207 @@
-<p>new-movimiento works!</p>
+<div class="grid grid-cols-12 gap-4">
+    <div class="col-span-12">
+        <form [formGroup]="registerForm" action="javascript:;">
+            <div class="grid grid-cols-12 gap-4 p-6 rounded shadow-md">
+                <div class="col-span-12 md:col-span-6">
+                    <div class="flex flex-col gap-1">
+                        <label for="tipo" class="font-medium"
+                            >Tipo de movimiento</label
+                        >
+                        <p-select
+                            [options]="listTipos"
+                            formControlName="tipo"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Seleccione"
+                            class="w-full"
+                            appendTo="body"
+                            [invalid]="isInvalid('tipo')"
+                            (onChange)="changeTipo()"
+                        ></p-select>
+                        @if (isInvalid('tipo')) {
+                        <p-message
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                            >Obligatorio.</p-message
+                        >
+                        }
+                    </div>
+                </div>
+                <div class="col-span-12 md:col-span-6">
+                    <div class="flex flex-col gap-1">
+                        <label for="motivo" class="font-medium">Motivo</label>
+                        <p-select
+                            [options]="listMotivos"
+                            formControlName="motivo"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Seleccione"
+                            class="w-full"
+                            appendTo="body"
+                            [invalid]="isInvalid('motivo')"
+                        ></p-select>
+                        @if (isInvalid('motivo')) {
+                        <p-message
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                            >Obligatorio.</p-message
+                        >
+                        }
+                    </div>
+                </div>
+                <div class="col-span-12 md:col-span-6">
+                    <div class="flex flex-col gap-1">
+                        <label for="almacen_origen" class="font-medium"
+                            >Almacén Origen</label
+                        >
+                        <p-select
+                            [options]="listAlmacenes"
+                            formControlName="almacen_origen"
+                            optionLabel="nombre"
+                            placeholder="Seleccione"
+                            class="w-full"
+                            appendTo="body"
+                            [showClear]="true"
+                            [filter]="true"
+                            filterBy="nombre"
+                            [invalid]="isInvalid('almacen_origen')"
+                        ></p-select>
+                        @if (isInvalid('almacen_origen')) {
+                        <p-message
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                            >Obligatorio.</p-message
+                        >
+                        }
+                    </div>
+                </div>
+                <div class="col-span-12 md:col-span-6">
+                    <div class="flex flex-col gap-1">
+                        <label for="almacen_destino" class="font-medium"
+                            >Almacén Destino</label
+                        >
+                        <p-select
+                            [options]="listAlmacenes"
+                            formControlName="almacen_destino"
+                            optionLabel="nombre"
+                            placeholder="Seleccione"
+                            class="w-full"
+                            appendTo="body"
+                            [showClear]="true"
+                            [filter]="true"
+                            filterBy="nombre"
+                            [invalid]="isInvalid('almacen_destino')"
+                        ></p-select>
+                        @if (isInvalid('almacen_destino')) {
+                        <p-message
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                            >Obligatorio.</p-message
+                        >
+                        }
+                    </div>
+                </div>
+                <div class="col-span-12 md:col-span-6">
+                    <div class="flex flex-col gap-1">
+                        <label for="producto" class="font-medium"
+                            >Producto</label
+                        >
+                        <p-select
+                            [options]="listProductos"
+                            formControlName="producto"
+                            optionLabel="nombre"
+                            placeholder="Seleccione"
+                            class="w-full"
+                            appendTo="body"
+                            [showClear]="true"
+                            [filter]="true"
+                            filterBy="nombre"
+                            [invalid]="isInvalid('producto')"
+                            (onChange)="changeProducto()"
+                        ></p-select>
+                        @if (isInvalid('producto')) {
+                        <p-message
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                            >Obligatorio.</p-message
+                        >
+                        }
+                    </div>
+                </div>
+                <div class="col-span-12 md:col-span-3">
+                    <div class="flex flex-col gap-1">
+                        <label for="cantidad" class="font-medium"
+                            >Cantidad</label
+                        >
+                        <p-inputnumber
+                            inputId="cantidad"
+                            formControlName="cantidad"
+                            mode="decimal"
+                            [useGrouping]="false"
+                            [min]="0"
+                            [invalid]="isInvalid('cantidad')"
+                        ></p-inputnumber>
+                        @if (isInvalid('cantidad')) {
+                        <p-message
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                            >Obligatorio.</p-message
+                        >
+                        }
+                    </div>
+                </div>
+                <div class="col-span-12 md:col-span-3">
+                    <div class="flex flex-col gap-1">
+                        <label for="unidad_medida" class="font-medium"
+                            >Unidad</label
+                        >
+                        <p-select
+                            [options]="listUnidadMedidas"
+                            formControlName="unidad_medida"
+                            optionLabel="label"
+                            optionValue="value"
+                            placeholder="Seleccione"
+                            class="w-full"
+                            appendTo="body"
+                            [showClear]="true"
+                            [invalid]="isInvalid('unidad_medida')"
+                            [disabled]="true"
+                        ></p-select>
+                        @if (isInvalid('unidad_medida')) {
+                        <p-message
+                            severity="error"
+                            size="small"
+                            variant="simple"
+                            >Obligatorio.</p-message
+                        >
+                        }
+                    </div>
+                </div>
+                <div class="col-span-12">
+                    <div class="flex justify-end gap-2 mt-4">
+                        <p-button
+                            label="Cerrar"
+                            icon="fa-solid fa-times"
+                            severity="secondary"
+                            (onClick)="onClose()"
+                        ></p-button>
+
+                        <p-button
+                            label="Guardar"
+                            icon="fa-solid fa-save"
+                            severity="primary"
+                            [loading]="loadingSubmit"
+                            (onClick)="onSubmit()"
+                        ></p-button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

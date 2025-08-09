@@ -62,7 +62,7 @@ export class WebService {
         );
     }
 
-     private nameURLProductos = 'api/v1/productos';
+    private nameURLProductos = 'api/v1/productos';
     getProductos(query: any): Observable<any> {
         return this.http.get(
             `${this.SERVER_API}/${this.nameURLProductos}/?${query.search}${query.params}`,
@@ -101,6 +101,56 @@ export class WebService {
             {
                 headers: this.getHeader(),
             }
+        );
+    }
+
+    private nameURLMovimientos = 'api/v1/movimientos';
+    getMovimientos(query: any): Observable<any> {
+        return this.http.get(
+            `${this.SERVER_API}/${this.nameURLMovimientos}/?${query.search}${query.params}`,
+            { headers: this.getHeader() }
+        );
+    }
+    getMovimientoById(id: any): Observable<any> {
+        return this.http.get(
+            `${this.SERVER_API}/${this.nameURLMovimientos}/${id}`,
+            {
+                headers: this.getHeader(),
+            }
+        );
+    }
+    postMovimiento(data: any): Observable<any> {
+        return this.http.post(
+            `${this.SERVER_API}/${this.nameURLMovimientos}/`,
+            data,
+            {
+                headers: this.getHeader(),
+            }
+        );
+    }
+    putMovimiento(id: any, data: any): Observable<any> {
+        return this.http.put(
+            `${this.SERVER_API}/${this.nameURLMovimientos}/${id}`,
+            data,
+            {
+                headers: this.getHeader(),
+            }
+        );
+    }
+    deleteMovimiento(id: any): Observable<any> {
+        return this.http.delete(
+            `${this.SERVER_API}/${this.nameURLMovimientos}/${id}`,
+            {
+                headers: this.getHeader(),
+            }
+        );
+    }
+
+    private nameURLStock = 'api/v1/stock';
+    getStock(query: any): Observable<any> {
+        return this.http.get(
+            `${this.SERVER_API}/${this.nameURLStock}/?${query.search}${query.params}`,
+            { headers: this.getHeader() }
         );
     }
 }

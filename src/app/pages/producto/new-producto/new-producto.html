@@ -54,30 +54,7 @@
                         }
                     </div>
                 </div>
-                <div class="col-span-12 md:col-span-2">
-                    <div class="flex flex-col gap-1">
-                        <label for="cantidad" class="font-medium"
-                            >Cantidad</label
-                        >
-                        <p-inputnumber
-                            inputId="cantidad"
-                            formControlName="cantidad"
-                            mode="decimal"
-                            [useGrouping]="false"
-                            [min]="0"
-                            [invalid]="isInvalid('cantidad')"
-                        ></p-inputnumber>
-                        @if (isInvalid('cantidad')) {
-                        <p-message
-                            severity="error"
-                            size="small"
-                            variant="simple"
-                            >Obligatorio.</p-message
-                        >
-                        }
-                    </div>
-                </div>
-                <div class="col-span-12 md:col-span-2">
+                <div class="col-span-12 md:col-span-4">
                     <div class="flex flex-col gap-1">
                         <label for="unidad_medida" class="font-medium"
                             >Unidad</label
@@ -167,20 +144,32 @@
                             Imagen
                         </label>
                         <div
-                            class="card flex flex-col items-center gap-4 p-4 border rounded-lg shadow-sm"
+                            class="flex flex-col items-center gap-4 p-4 border rounded-lg shadow-sm"
                         >
-                            <p-fileupload
-                                #fu
-                                mode="basic"
-                                chooseLabel="Seleccionar imagen"
-                                chooseIcon="pi pi-upload"
-                                accept="image/*"
-                                maxFileSize="1000000"
-                                (onSelect)="onFileSelected($event)"
-                                [customUpload]="true"
-                                class="w-full max-w-xs"
-                            ></p-fileupload>
-
+                            <label class="text-sm mb-1 block">
+                                Solo se aceptan imágenes con dimensiones exactas
+                                de 1000 x 1000 px.
+                            </label>
+                            <div class="shadow-sm p-2">
+                                <p-fileupload
+                                    #fu
+                                    mode="basic"
+                                    chooseLabel="Seleccionar imagen"
+                                    chooseIcon="pi pi-upload"
+                                    accept="image/jpeg"
+                                    maxFileSize="1000000"
+                                    (onSelect)="onFileSelected($event)"
+                                    [customUpload]="true"
+                                    class="w-full max-w-xs"
+                                ></p-fileupload>
+                            </div>
+                            @if (errorDimensionesImagen) {
+                            <p-message severity="error"
+                                >La imagen debe tener exactamente 1000px de
+                                ancho y alto.</p-message
+                            >
+                            } @if (registerForm.get('img_base64')?.value !=
+                            null) {
                             <p-image
                                 [src]="registerForm.get('img_base64')?.value"
                                 alt="Imagen del producto"
@@ -191,6 +180,7 @@
                                     object-fit: contain;
                                 "
                             ></p-image>
+                            }
                         </div>
 
                         @if (isInvalid('img_base64')) {

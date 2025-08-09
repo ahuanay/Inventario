@@ -1,0 +1,44 @@
+# Build folders
+bin/
+obj/
+
+# Visual Studio files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider IDE files
+.idea/
+
+# Visual Studio Code settings
+.vscode/
+
+# Configuración sensible que no debe subirse
+Properties/launchSettings.json
+secrets.json
+.env
+
+# Archivos de logs
+*.log
+
+# Paquetes NuGet
+*.nupkg
+packages/
+.nuget/
+
+# Publicación (publish) de salida
+publish/
+
+# Archivos temporales
+*.tmp
+*.temp
+*.cache
+
+# Configuración de Docker
+docker-compose.override.yml
+
+# Otros archivos que puedes querer ignorar
+*.DS_Store
+Thumbs.db

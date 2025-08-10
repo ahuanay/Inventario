@@ -1,5 +1,6 @@
 ﻿using InventarioApi.Data;
 using InventarioApi.Models;
+using InventarioApi.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -18,20 +19,50 @@ namespace InventarioApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<object>>> GetAll()
+        public async Task<ActionResult> GetAll(
+            [FromQuery] Guid? productoId,
+            [FromQuery] Guid? almacenId,
+            [FromQuery] string? tipo,
+            [FromQuery] int from = 0,
+            [FromQuery] int size = 50)
         {
-            var movimientos = await _context.Movimientos
+            var query = _context.Movimientos
                 .Include(m => m.Producto)
                 .Include(m => m.AlmacenOrigen)
                 .Include(m => m.AlmacenDestino)
+                .AsQueryable();
+
+            if (productoId.HasValue)
+                query = query.Where(m => m.ProductoId == productoId);
+
+            if (almacenId.HasValue)
+                query = query.Where(m =>
+                    m.AlmacenOrigenId == almacenId || m.AlmacenDestinoId == almacenId);
+
+            if (!string.IsNullOrEmpty(tipo))
+                query = query.Where(m => m.Tipo == tipo);
+
+            var total = await query.CountAsync();
+            var rows = await query
                 .OrderByDescending(m => m.CreatedAt)
+                .Skip(from)
+                .Take(size)
                 .Select(MapMovimiento)
                 .ToListAsync();
-            return Ok(movimientos);
+
+            var pagedData = new PagedData<object>
+            {
+                Total = total,
+                From = from,
+                Size = size,
+                Rows = rows
+            };
+
+            return Ok(new ApiResponse<PagedData<object>>(pagedData));
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<object>> GetById(Guid id)
+        public async Task<ActionResult> GetById(Guid id)
         {
             var movimiento = await _context.Movimientos
                 .Include(m => m.Producto)
@@ -41,32 +72,32 @@ namespace InventarioApi.Controllers
                 .Select(MapMovimiento)
                 .FirstOrDefaultAsync();
 
-            if (movimiento == null) return NotFound();
+            if (movimiento == null)
+                return NotFound(new ApiResponse<object>("Movimiento no encontrado."));
 
-            return Ok(movimiento);
+            return Ok(new ApiResponse<object>(movimiento));
         }
 
         [HttpPost]
-        public async Task<ActionResult<object>> Save([FromBody] Movimiento movimiento)
+        public async Task<ActionResult> Create([FromBody] Movimiento movimiento)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             if (movimiento.Tipo != "E" && movimiento.Tipo != "S")
-                return BadRequest("Tipo de movimiento inválido. Debe ser 'E' o 'S'.");
+                return BadRequest(new ApiResponse<object>("Tipo de movimiento inválido. Debe ser 'E' o 'S'."));
 
             if (movimiento.Tipo == "E" && movimiento.AlmacenDestinoId == null)
-                return BadRequest("Almacén de destino es requerido para entradas.");
+                return BadRequest(new ApiResponse<object>("Almacén de destino es requerido para entradas."));
 
             if (movimiento.Tipo == "S" && movimiento.AlmacenOrigenId == null)
-                return BadRequest("Almacén de origen es requerido para salidas.");
+                return BadRequest(new ApiResponse<object>("Almacén de origen es requerido para salidas."));
 
             Guid almacenId = movimiento.Tipo == "E"
-                ? movimiento.AlmacenDestinoId.Value
-                : movimiento.AlmacenOrigenId.Value;
+                ? movimiento.AlmacenDestinoId!.Value
+                : movimiento.AlmacenOrigenId!.Value;
 
             var stock = await _context.Stock
-                .FirstOrDefaultAsync(s => s.AlmacenId == almacenId && s.ProductoId == movimiento.ProductoId);
+                .FirstOrDefaultAsync(s =>
+                    s.ProductoId == movimiento.ProductoId &&
+                    s.AlmacenId == almacenId);
 
             if (stock == null)
             {
@@ -74,24 +105,26 @@ namespace InventarioApi.Controllers
                 {
                     ProductoId = movimiento.ProductoId,
                     AlmacenId = almacenId,
-                    Cantidad = 0,
-                    UnidadMedida = movimiento.UnidadMedida
+                    UnidadMedida = movimiento.UnidadMedida,
+                    Cantidad = 0
                 };
                 _context.Stock.Add(stock);
                 await _context.SaveChangesAsync();
             }
 
             if (stock.UnidadMedida != movimiento.UnidadMedida)
-                return BadRequest("La unidad de medida del movimiento no coincide con la del stock.");
+            {
+                return BadRequest(new ApiResponse<object>("La unidad de medida del movimiento no coincide con la del stock."));
+            }
 
             if (movimiento.Tipo == "E")
             {
                 stock.Cantidad += movimiento.Cantidad;
             }
-            else if (movimiento.Tipo == "S")
+            else // Tipo == "S"
             {
                 if (stock.Cantidad < movimiento.Cantidad)
-                    return BadRequest("No hay suficiente stock para realizar la salida.");
+                    return BadRequest(new ApiResponse<object>("No hay suficiente stock para realizar la salida."));
 
                 stock.Cantidad -= movimiento.Cantidad;
             }
@@ -107,13 +140,13 @@ namespace InventarioApi.Controllers
                 .Select(MapMovimiento)
                 .FirstOrDefaultAsync();
 
-            return CreatedAtAction(nameof(GetById), new { id = movimiento.Id }, movimientoConRelaciones);
+            return CreatedAtAction(nameof(GetById), new { id = movimiento.Id }, new ApiResponse<object>(movimientoConRelaciones));
         }
 
         private static Expression<Func<Movimiento, object>> MapMovimiento => m => new
         {
             m.Id,
-            Tipo = m.Tipo.ToString(),
+            m.Tipo,
             m.Motivo,
             m.Cantidad,
             m.UnidadMedida,

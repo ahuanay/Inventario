@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using InventarioApi.Data;
 using InventarioApi.Models;
+using InventarioApi.Responses;
 
 namespace InventarioApi.Controllers
 {
@@ -17,13 +18,17 @@ namespace InventarioApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Producto>>> GetAll([FromQuery] string? search, [FromQuery] bool? es_activo)
+        public async Task<ActionResult> GetAll(
+            [FromQuery] string? search,
+            [FromQuery] bool? es_activo,
+            [FromQuery] int from = 0,
+            [FromQuery] int size = 50)
         {
             var query = _context.Productos.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))
             {
-                string lowerSearch = search.ToLower();
+                var lowerSearch = search.ToLower();
                 query = query.Where(p =>
                     p.Nombre.ToLower().Contains(lowerSearch) ||
                     p.Codigo.ToLower().Contains(lowerSearch) ||
@@ -35,41 +40,68 @@ namespace InventarioApi.Controllers
                 query = query.Where(p => p.EsActivo == es_activo.Value);
             }
 
-            var productos = await _context.Productos.OrderBy(p => p.Nombre).ToListAsync();
-            return Ok(productos);
+            var total = await query.CountAsync();
+            var rows = await query
+                .OrderBy(p => p.Nombre)
+                .Skip(from)
+                .Take(size)
+                .ToListAsync();
+
+            var pagedData = new PagedData<Producto>
+            {
+                Total = total,
+                From = from,
+                Size = size,
+                Rows = rows
+            };
+
+            return Ok(new ApiResponse<PagedData<Producto>>(pagedData));
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Producto>> GetById(Guid id)
+        public async Task<ActionResult> GetById(Guid id)
         {
             var producto = await _context.Productos.FindAsync(id);
-            if (producto == null) return NotFound();
-            return Ok(producto);
+            if (producto == null)
+                return NotFound(new ApiResponse<object>("Producto no encontrado."));
+
+            return Ok(new ApiResponse<object>(producto));
         }
 
         [HttpPost]
-        public async Task<ActionResult<Producto>> Save([FromBody] Producto producto)
+        public async Task<ActionResult> Create([FromBody] Producto producto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            var existeCodigo = await _context.Productos
+                .AnyAsync(p => p.Codigo == producto.Codigo);
+
+            if (existeCodigo)
+            {
+                return BadRequest(new ApiResponse<object>($"El código '{producto.Codigo}' ya está en uso."));
+            }
 
             _context.Productos.Add(producto);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetById), new { id = producto.Id }, producto);
+            return CreatedAtAction(nameof(GetById), new { id = producto.Id }, new ApiResponse<object>(producto));
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Producto>> Update(Guid id, [FromBody] Producto producto)
+        public async Task<ActionResult> Update(Guid id, [FromBody] Producto producto)
         {
             if (id != producto.Id)
-                return BadRequest("El ID no coincide");
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new ApiResponse<object>("El ID proporcionado no coincide."));
 
             var productoExistente = await _context.Productos.FindAsync(id);
-            if (productoExistente == null) return NotFound();
+            if (productoExistente == null)
+                return NotFound(new ApiResponse<object>("Producto no encontrado."));
+
+            var existeCodigo = await _context.Productos
+                .AnyAsync(p => p.Codigo == producto.Codigo && p.Id != id);
+
+            if (existeCodigo)
+            {
+                return BadRequest(new ApiResponse<object>($"El código '{producto.Codigo}' ya está en uso por otro producto."));
+            }
 
             productoExistente.Codigo = producto.Codigo;
             productoExistente.Nombre = producto.Nombre;
@@ -79,23 +111,22 @@ namespace InventarioApi.Controllers
             productoExistente.UnidadMedida = producto.UnidadMedida;
             productoExistente.EsActivo = producto.EsActivo;
 
-            _context.Productos.Update(productoExistente);
             await _context.SaveChangesAsync();
 
-            return Ok(productoExistente);
+            return Ok(new ApiResponse<object>(productoExistente));
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
             var producto = await _context.Productos.FindAsync(id);
-            if (producto == null) return NotFound();
+            if (producto == null)
+                return NotFound(new ApiResponse<object>("Producto no encontrado."));
 
             producto.DeletedAt = DateTime.UtcNow;
-            _context.Productos.Update(producto);
             await _context.SaveChangesAsync();
 
-            return BadRequest("Eliminado");
+            return Ok(new ApiResponse<object>(new { }));
         }
     }
 }

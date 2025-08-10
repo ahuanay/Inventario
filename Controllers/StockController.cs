@@ -1,5 +1,6 @@
 ﻿using InventarioApi.Data;
 using InventarioApi.Models;
+using InventarioApi.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
@@ -18,19 +19,45 @@ namespace InventarioApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Stock>>> GetAll()
+        public async Task<ActionResult> GetAll(
+            [FromQuery] Guid? almacenId,
+            [FromQuery] Guid? productoId,
+            [FromQuery] int from = 0,
+            [FromQuery] int size = 50)
         {
-            var stock = await _context.Stock
+            var query = _context.Stock
                 .Include(m => m.Producto)
                 .Include(m => m.Almacen)
+                .AsQueryable();
+
+            if (almacenId.HasValue)
+                query = query.Where(s => s.AlmacenId == almacenId);
+
+            if (productoId.HasValue)
+                query = query.Where(s => s.ProductoId == productoId);
+
+            var total = await query.CountAsync();
+
+            var rows = await query
                 .OrderByDescending(m => m.CreatedAt)
+                .Skip(from)
+                .Take(size)
                 .Select(MapStock)
                 .ToListAsync();
-            return Ok(stock);
+
+            var pagedData = new PagedData<object>
+            {
+                Total = total,
+                From = from,
+                Size = size,
+                Rows = rows
+            };
+
+            return Ok(new ApiResponse<PagedData<object>>(pagedData));
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Stock>> GetById(Guid id)
+        public async Task<ActionResult> GetById(Guid id)
         {
             var stock = await _context.Stock
                 .Include(m => m.Producto)
@@ -40,17 +67,14 @@ namespace InventarioApi.Controllers
                 .FirstOrDefaultAsync();
 
             if (stock == null)
-                return NotFound();
+                return NotFound(new ApiResponse<object>("Stock no encontrado."));
 
-            return Ok(stock);
+            return Ok(new ApiResponse<object>(stock));
         }
 
         [HttpPost]
-        public async Task<ActionResult<Stock>> Save([FromBody] Stock stock)
+        public async Task<ActionResult> Create([FromBody] Stock stock)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             _context.Stock.Add(stock);
             await _context.SaveChangesAsync();
 
@@ -61,28 +85,24 @@ namespace InventarioApi.Controllers
                 .Select(MapStock)
                 .FirstOrDefaultAsync();
 
-            return CreatedAtAction(nameof(GetById), new { id = stock.Id }, stockConRelaciones);
+            return CreatedAtAction(nameof(GetById), new { id = stock.Id }, new ApiResponse<object>(stockConRelaciones));
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Stock>> Update(Guid id, [FromBody] Stock stock)
+        public async Task<ActionResult> Update(Guid id, [FromBody] Stock stock)
         {
             if (id != stock.Id)
-                return BadRequest("El ID no coincide");
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(new ApiResponse<object>("El ID proporcionado no coincide."));
 
             var stockExistente = await _context.Stock.FindAsync(id);
             if (stockExistente == null)
-                return NotFound();
+                return NotFound(new ApiResponse<object>("Stock no encontrado."));
 
             stockExistente.ProductoId = stock.ProductoId;
             stockExistente.AlmacenId = stock.AlmacenId;
             stockExistente.Cantidad = stock.Cantidad;
             stockExistente.UnidadMedida = stock.UnidadMedida;
 
-            _context.Stock.Update(stockExistente);
             await _context.SaveChangesAsync();
 
             var stockConRelaciones = await _context.Stock
@@ -92,7 +112,7 @@ namespace InventarioApi.Controllers
                 .Select(MapStock)
                 .FirstOrDefaultAsync();
 
-            return Ok(stockConRelaciones);
+            return Ok(new ApiResponse<object>(stockConRelaciones));
         }
 
         [HttpDelete("{id}")]
@@ -100,13 +120,12 @@ namespace InventarioApi.Controllers
         {
             var stock = await _context.Stock.FindAsync(id);
             if (stock == null)
-                return NotFound();
+                return NotFound(new ApiResponse<object>("Stock no encontrado."));
 
             stock.DeletedAt = DateTime.UtcNow;
-            _context.Stock.Update(stock);
             await _context.SaveChangesAsync();
 
-            return BadRequest("Eliminado");
+            return Ok(new ApiResponse<object>(new { }));
         }
 
         private static Expression<Func<Stock, object>> MapStock => m => new

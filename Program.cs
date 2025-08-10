@@ -1,11 +1,26 @@
 using InventarioApi.Data;
+using InventarioApi.Filters;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ValidateModelFilter>();
+})
+.ConfigureApiBehaviorOptions(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+})
+.AddNewtonsoftJson(options =>
+{
+    options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver
+    {
+        NamingStrategy = new Newtonsoft.Json.Serialization.SnakeCaseNamingStrategy()
+    };
+    options.SerializerSettings.DateFormatString = "yyyy-MM-dd HH:mm:ss";
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -16,17 +31,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
                        ?? builder.Configuration.GetConnectionString("DefaultConnection");
     options.UseNpgsql(connectionString);
 });
-
-builder.Services.AddControllers()
-    .AddNewtonsoftJson(options =>
-    {
-        options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver
-        {
-            NamingStrategy = new Newtonsoft.Json.Serialization.SnakeCaseNamingStrategy()
-        };
-
-        options.SerializerSettings.DateFormatString = "yyyy-MM-dd HH:mm:ss";
-    });
 
 builder.Services.AddCors(options =>
 {

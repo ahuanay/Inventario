@@ -59,6 +59,10 @@ namespace InventarioApi.Data
             modelBuilder.Entity<Producto>().HasQueryFilter(p => p.DeletedAt == null);
             modelBuilder.Entity<Stock>().HasQueryFilter(p => p.DeletedAt == null);
 
+            modelBuilder.Entity<Almacen>().HasIndex(a => a.Codigo).IsUnique();
+
+            modelBuilder.Entity<Producto>().HasIndex(p => p.Codigo).IsUnique();
+
             modelBuilder.Entity<Movimiento>()
                 .HasOne(m => m.AlmacenOrigen)
                 .WithMany(a => a.MovimientosOrigen)

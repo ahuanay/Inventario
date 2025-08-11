@@ -57,7 +57,7 @@
                             >Almacén Origen</label
                         >
                         <p-select
-                            [options]="listAlmacenes"
+                            [options]="listAlmacenesOrigen"
                             formControlName="almacen_origen"
                             optionLabel="nombre"
                             placeholder="Seleccione"
@@ -67,6 +67,9 @@
                             [filter]="true"
                             filterBy="nombre"
                             [invalid]="isInvalid('almacen_origen')"
+                            (onFilter)="onFilterAlmacenesOrigen($event)"
+                            emptyMessage="No se encontraron registros."
+                            emptyFilterMessage="No se han encontrado resultados"
                         ></p-select>
                         @if (isInvalid('almacen_origen')) {
                         <p-message
@@ -84,7 +87,7 @@
                             >Almacén Destino</label
                         >
                         <p-select
-                            [options]="listAlmacenes"
+                            [options]="listAlmacenesDestino"
                             formControlName="almacen_destino"
                             optionLabel="nombre"
                             placeholder="Seleccione"
@@ -94,6 +97,9 @@
                             [filter]="true"
                             filterBy="nombre"
                             [invalid]="isInvalid('almacen_destino')"
+                            (onFilter)="onFilterAlmacenesDestino($event)"
+                            emptyMessage="No se encontraron registros."
+                            emptyFilterMessage="No se han encontrado resultados"
                         ></p-select>
                         @if (isInvalid('almacen_destino')) {
                         <p-message
@@ -122,6 +128,9 @@
                             filterBy="nombre"
                             [invalid]="isInvalid('producto')"
                             (onChange)="changeProducto()"
+                            (onFilter)="onFilterProductos($event)"
+                            emptyMessage="No se encontraron registros."
+                            emptyFilterMessage="No se han encontrado resultados"
                         ></p-select>
                         @if (isInvalid('producto')) {
                         <p-message
@@ -172,6 +181,8 @@
                             [showClear]="true"
                             [invalid]="isInvalid('unidad_medida')"
                             [disabled]="true"
+                            emptyMessage="No se encontraron registros."
+                            emptyFilterMessage="No se han encontrado resultados"
                         ></p-select>
                         @if (isInvalid('unidad_medida')) {
                         <p-message

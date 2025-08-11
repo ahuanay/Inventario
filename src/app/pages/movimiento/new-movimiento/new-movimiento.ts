@@ -46,7 +46,8 @@ export class NewMovimiento implements OnInit {
 
     public node: any = null;
 
-    public listAlmacenes: any[] = [];
+    public listAlmacenesOrigen: any[] = [];
+    public listAlmacenesDestino: any[] = [];
     public listProductos: any[] = [];
     public listTipos: any[] = [];
     public listMotivos: any[] = [];
@@ -83,20 +84,37 @@ export class NewMovimiento implements OnInit {
 
         let query = {
             search: 'search=',
-            params: `&es_activo=true&from=0&size=1000000`,
+            params: `&es_activo=true&from=0&size=50`,
         };
 
         forkJoin([
             this._webService.getAlmacenes(query),
             this._webService.getProductos(query),
-        ]).subscribe((responses: any[]) => {
-            this.listAlmacenes = responses[0];
-            this.listProductos = responses[1];
+        ]).subscribe(
+            (responses: any[]) => {
+                this.listAlmacenesOrigen = responses[0].data.rows;
+                this.listAlmacenesDestino = responses[0].data.rows;
+                this.listProductos = responses[1].data.rows;
 
-            if (this.node != null) {
-                this.initUpdateData();
+                if (this.node != null) {
+                    this.initUpdateData();
+                }
+            },
+            (error) => {
+                const respError: any[] = error.error.errors;
+
+                respError.forEach((e: any) => {
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: e,
+                        life: 3000,
+                    });
+                });
+
+                this.loadingSubmit = false;
             }
-        });
+        );
     }
 
     initForm() {
@@ -120,7 +138,6 @@ export class NewMovimiento implements OnInit {
         this.registerForm.get('id')?.setValue(data.id);
         this.registerForm.get('tipo')?.setValue(data.tipo);
         this.registerForm.get('motivo')?.setValue(data.motivo);
-        this.registerForm.get('almacen')?.setValue(data.almacen);
         this.registerForm.get('producto')?.setValue(data.producto);
         this.registerForm.get('cantidad')?.setValue(data.cantidad);
         this.registerForm.get('unidad_medida')?.setValue(data.unidad_medida);
@@ -277,6 +294,105 @@ export class NewMovimiento implements OnInit {
         this.registerForm
             .get('unidad_medida')
             ?.setValue(producto.unidad_medida);
+    }
+
+    onFilterProductos(e: any) {
+        let search = '';
+
+        if (e.filter != null) {
+            search = e.filter;
+        }
+
+        let query = {
+            search: `search=${search}`,
+            params: `&es_activo=true&from=0&size=50`,
+        };
+
+        this._webService.getProductos(query).subscribe(
+            (response: any) => {
+                this.listProductos = response.data.rows;
+            },
+            (error) => {
+                const respError: any[] = error.error.errors;
+
+                respError.forEach((e: any) => {
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: e,
+                        life: 3000,
+                    });
+                });
+
+                this.loadingSubmit = false;
+            }
+        );
+    }
+
+    onFilterAlmacenesOrigen(e: any) {
+        let search = '';
+
+        if (e.filter != null) {
+            search = e.filter;
+        }
+
+        let query = {
+            search: `search=${search}`,
+            params: `&es_activo=true&from=0&size=50`,
+        };
+
+        this._webService.getProductos(query).subscribe(
+            (response: any) => {
+                this.listAlmacenesOrigen = response.data.rows;
+            },
+            (error) => {
+                const respError: any[] = error.error.errors;
+
+                respError.forEach((e: any) => {
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: e,
+                        life: 3000,
+                    });
+                });
+
+                this.loadingSubmit = false;
+            }
+        );
+    }
+
+    onFilterAlmacenesDestino(e: any) {
+        let search = '';
+
+        if (e.filter != null) {
+            search = e.filter;
+        }
+
+        let query = {
+            search: `search=${search}`,
+            params: `&es_activo=true&from=0&size=50`,
+        };
+
+        this._webService.getProductos(query).subscribe(
+            (response: any) => {
+                this.listAlmacenesDestino = response.data.rows;
+            },
+            (error) => {
+                const respError: any[] = error.error.errors;
+
+                respError.forEach((e: any) => {
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: e,
+                        life: 3000,
+                    });
+                });
+
+                this.loadingSubmit = false;
+            }
+        );
     }
 
     isInvalid(controlName: string) {

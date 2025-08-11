@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
 import { WebService } from '../../../service/web-service';
@@ -11,10 +11,11 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { ContextMenuModule } from 'primeng/contextmenu';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { MenuItem } from 'primeng/api';
-import { MenuModule } from 'primeng/menu';
-import { TableModule } from 'primeng/table';
 import { ImageModule } from 'primeng/image';
+import { MenuItem, MessageService } from 'primeng/api';
+import { MenuModule } from 'primeng/menu';
+import { PaginatorModule, PaginatorState } from 'primeng/paginator';
+import { TableModule } from 'primeng/table';
 
 @Component({
     selector: 'app-list-producto',
@@ -24,15 +25,18 @@ import { ImageModule } from 'primeng/image';
         ButtonModule,
         CardModule,
         ContextMenuModule,
-        MenuModule,
-        TableModule,
         ImageModule,
+        MenuModule,
+        PaginatorModule,
+        TableModule,
     ],
     providers: [DialogService],
     templateUrl: './list-producto.html',
     styleUrl: './list-producto.css',
 })
 export class ListProducto implements OnInit {
+    public messageService = inject(MessageService);
+
     public listData: any[] = [];
     public selectedRow!: any;
     public loadingTable: boolean = false;
@@ -49,6 +53,12 @@ export class ListProducto implements OnInit {
             command: () => this.mdDestroy(this.selectedRow),
         },
     ];
+
+    public paginationTableOptions: any = {
+        first: 0,
+        rows: 5,
+        total: 0,
+    };
 
     constructor(
         private _webService: WebService,
@@ -71,19 +81,43 @@ export class ListProducto implements OnInit {
     getList() {
         this.loadingTable = true;
 
+        const from = this.paginationTableOptions.first;
+        const size = this.paginationTableOptions.rows;
+
         let query = {
             search: 'search=',
-            params: `&from=0&size=10`,
+            params: `&from=${from}&size=${size}`,
         };
+
         this._webService.getProductos(query).subscribe(
             (response) => {
-                this.listData = response;
+                const respData = response.data.rows;
+
+                this.paginationTableOptions.total = response.data.total;
+
+                this.listData = respData;
                 this.loadingTable = false;
             },
             (error) => {
-                console.log(error);
+                const respError: any[] = error.error.errors;
+
+                respError.forEach((e: any) => {
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: e,
+                        life: 3000,
+                    });
+                });
             }
         );
+    }
+
+    onPageChange(event: PaginatorState) {
+        this.paginationTableOptions.first = event.first;
+        this.paginationTableOptions.rows = event.rows;
+
+        this.getList();
     }
 
     private refMdCreate?: DynamicDialogRef;

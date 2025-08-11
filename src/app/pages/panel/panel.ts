@@ -11,6 +11,7 @@ import { WebService } from '../../service/web-service';
 
 import { ChartModule } from 'primeng/chart';
 import { isPlatformBrowser } from '@angular/common';
+import { MessageService } from 'primeng/api';
 
 @Component({
     selector: 'app-panel',
@@ -19,6 +20,7 @@ import { isPlatformBrowser } from '@angular/common';
     styleUrl: './panel.css',
 })
 export class Panel implements OnInit {
+    public messageService = inject(MessageService);
     public platformId = inject(PLATFORM_ID);
 
     public chartDataEntrada: any;
@@ -35,136 +37,149 @@ export class Panel implements OnInit {
     }
 
     getList() {
-        let query = {
-            search: 'search=',
-            params: `&from=0&size=100`,
-        };
+        this._webService.getAllMovimientos().subscribe(
+            (response) => {
+                const respData: any[] = response;
 
-        this._webService.getMovimientos(query).subscribe((response) => {
-            const currentYear = new Date().getFullYear();
+                const currentYear = new Date().getFullYear();
 
-            const movimientos = (response as any[]).filter((mov) => {
-                if (!mov.created_at || mov.created_at.startsWith('0001'))
-                    return false;
-                const fecha = new Date(mov.created_at);
-                return fecha.getFullYear() === currentYear;
-            });
-
-            if (isPlatformBrowser(this.platformId)) {
-                const documentStyle = getComputedStyle(
-                    document.documentElement
-                );
-                const textColor =
-                    documentStyle.getPropertyValue('--p-text-color');
-                const textColorSecondary = documentStyle.getPropertyValue(
-                    '--p-text-muted-color'
-                );
-                const surfaceBorder = documentStyle.getPropertyValue(
-                    '--p-content-border-color'
-                );
-
-                const meses = [
-                    'Enero',
-                    'Febrero',
-                    'Marzo',
-                    'Abril',
-                    'Mayo',
-                    'Junio',
-                    'Julio',
-                    'Agosto',
-                    'Setiembre',
-                    'Octubre',
-                    'Noviembre',
-                    'Diciembre',
-                ];
-
-                const entradas: Record<string, number[]> = {};
-                const salidas: Record<string, number[]> = {};
-
-                movimientos.forEach((mov) => {
-                    const mes = new Date(mov.created_at).getMonth();
-                    const nombre = mov.producto.nombre;
-
-                    if (mov.tipo === 'E') {
-                        if (!entradas[nombre])
-                            entradas[nombre] = Array(12).fill(0);
-                        entradas[nombre][mes] += mov.cantidad;
-                    } else if (mov.tipo === 'S') {
-                        if (!salidas[nombre])
-                            salidas[nombre] = Array(12).fill(0);
-                        salidas[nombre][mes] += mov.cantidad;
-                    }
+                const movimientos = respData.filter((mov) => {
+                    if (!mov.created_at || mov.created_at.startsWith('0001'))
+                        return false;
+                    const fecha = new Date(mov.created_at);
+                    return fecha.getFullYear() === currentYear;
                 });
 
-                const datasetsEntradas = Object.entries(entradas).map(
-                    ([nombre, data]) => ({
-                        label: nombre,
-                        backgroundColor: this.randomColor(),
-                        borderColor: 'transparent',
-                        data,
-                    })
-                );
+                if (isPlatformBrowser(this.platformId)) {
+                    const documentStyle = getComputedStyle(
+                        document.documentElement
+                    );
+                    const textColor =
+                        documentStyle.getPropertyValue('--p-text-color');
+                    const textColorSecondary = documentStyle.getPropertyValue(
+                        '--p-text-muted-color'
+                    );
+                    const surfaceBorder = documentStyle.getPropertyValue(
+                        '--p-content-border-color'
+                    );
 
-                const datasetsSalidas = Object.entries(salidas).map(
-                    ([nombre, data]) => ({
-                        label: nombre,
-                        backgroundColor: this.randomColor(),
-                        borderColor: 'transparent',
-                        data,
-                    })
-                );
+                    const meses = [
+                        'Enero',
+                        'Febrero',
+                        'Marzo',
+                        'Abril',
+                        'Mayo',
+                        'Junio',
+                        'Julio',
+                        'Agosto',
+                        'Setiembre',
+                        'Octubre',
+                        'Noviembre',
+                        'Diciembre',
+                    ];
 
-                this.chartDataEntrada = {
-                    labels: meses,
-                    datasets: datasetsEntradas,
-                };
+                    const entradas: Record<string, number[]> = {};
+                    const salidas: Record<string, number[]> = {};
 
-                this.chartDataSalida = {
-                    labels: meses,
-                    datasets: datasetsSalidas,
-                };
+                    movimientos.forEach((mov) => {
+                        const mes = new Date(mov.created_at).getMonth();
+                        const nombre = mov.producto.nombre;
 
-                this.options = {
-                    maintainAspectRatio: false,
-                    aspectRatio: 0.8,
-                    plugins: {
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false,
-                        },
-                        legend: {
-                            labels: {
-                                color: textColor,
+                        if (mov.tipo === 'E') {
+                            if (!entradas[nombre])
+                                entradas[nombre] = Array(12).fill(0);
+                            entradas[nombre][mes] += mov.cantidad;
+                        } else if (mov.tipo === 'S') {
+                            if (!salidas[nombre])
+                                salidas[nombre] = Array(12).fill(0);
+                            salidas[nombre][mes] += mov.cantidad;
+                        }
+                    });
+
+                    const datasetsEntradas = Object.entries(entradas).map(
+                        ([nombre, data]) => ({
+                            label: nombre,
+                            backgroundColor: this.randomColor(),
+                            borderColor: 'transparent',
+                            data,
+                        })
+                    );
+
+                    const datasetsSalidas = Object.entries(salidas).map(
+                        ([nombre, data]) => ({
+                            label: nombre,
+                            backgroundColor: this.randomColor(),
+                            borderColor: 'transparent',
+                            data,
+                        })
+                    );
+
+                    this.chartDataEntrada = {
+                        labels: meses,
+                        datasets: datasetsEntradas,
+                    };
+
+                    this.chartDataSalida = {
+                        labels: meses,
+                        datasets: datasetsSalidas,
+                    };
+
+                    this.options = {
+                        maintainAspectRatio: false,
+                        aspectRatio: 0.8,
+                        plugins: {
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                            },
+                            legend: {
+                                labels: {
+                                    color: textColor,
+                                },
                             },
                         },
-                    },
-                    scales: {
-                        x: {
-                            stacked: true,
-                            ticks: {
-                                color: textColorSecondary,
+                        scales: {
+                            x: {
+                                stacked: true,
+                                ticks: {
+                                    color: textColorSecondary,
+                                },
+                                grid: {
+                                    color: surfaceBorder,
+                                    drawBorder: false,
+                                },
                             },
-                            grid: {
-                                color: surfaceBorder,
-                                drawBorder: false,
+                            y: {
+                                stacked: true,
+                                ticks: {
+                                    color: textColorSecondary,
+                                },
+                                grid: {
+                                    color: surfaceBorder,
+                                    drawBorder: false,
+                                },
                             },
                         },
-                        y: {
-                            stacked: true,
-                            ticks: {
-                                color: textColorSecondary,
-                            },
-                            grid: {
-                                color: surfaceBorder,
-                                drawBorder: false,
-                            },
-                        },
-                    },
-                };
+                    };
 
-                this.cd.markForCheck();
+                    this.cd.markForCheck();
+                }
+            },
+            (error) => {
+                const respError: any[] = error.error?.errors || [
+                    'Ocurrió un error. Por favor, consulte con su administrador.',
+                ];
+
+                respError.forEach((e: any) => {
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: e,
+                        life: 3000,
+                    });
+                });
             }
-        });
+        );
     }
 
     randomColor(opacity = 0.8): string {

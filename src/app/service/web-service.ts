@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { expand, map, Observable, of, reduce } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -110,6 +110,29 @@ export class WebService {
             `${this.SERVER_API}/${this.nameURLMovimientos}/?${query.search}${query.params}`,
             { headers: this.getHeader() }
         );
+    }
+    getAllMovimientos(): Observable<any> {
+        const size = 100;
+        let currentFrom = 0;
+
+        return this.http
+            .get(
+                `${this.SERVER_API}/${this.nameURLMovimientos}?search=&from=${currentFrom}&size=${size}`,
+                { headers: this.getHeader() }
+            )
+            .pipe(
+                expand((response: any) => {
+                    currentFrom += size;
+                    if (currentFrom >= response.data.total) return of();
+
+                    return this.http.get(
+                        `${this.SERVER_API}/${this.nameURLMovimientos}?search=&from=${currentFrom}&size=${size}`,
+                        { headers: this.getHeader() }
+                    );
+                }),
+                map((response: any) => response.data.rows),
+                reduce((acc: any, data: any) => acc.concat(data), [])
+            );
     }
     getMovimientoById(id: any): Observable<any> {
         return this.http.get(

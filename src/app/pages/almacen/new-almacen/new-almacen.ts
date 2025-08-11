@@ -35,7 +35,7 @@ import { parse, stringify } from 'flatted';
     styleUrl: './new-almacen.css',
 })
 export class NewAlmacen implements OnInit {
-    messageService = inject(MessageService);
+    public messageService = inject(MessageService);
 
     public registerForm: FormGroup = new FormGroup({});
 
@@ -242,6 +242,8 @@ export class NewAlmacen implements OnInit {
     saveForm(data: any) {
         this._webService.postAlmacen(data).subscribe(
             (response) => {
+                const respData = response.data;
+
                 this.messageService.add({
                     severity: 'success',
                     summary: 'ÉXITO',
@@ -249,20 +251,38 @@ export class NewAlmacen implements OnInit {
                     life: 3000,
                 });
 
+                this.formSubmitted = false;
+                this.loadingSubmit = false;
+
                 this.resetForm();
 
                 this.onClose({
                     type: 'created',
-                    data: response,
+                    data: respData,
                 });
             },
-            (error) => {}
+            (error) => {
+                const respError: any[] = error.error.errors;
+
+                respError.forEach((e: any) => {
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: e,
+                        life: 3000,
+                    });
+                });
+
+                this.loadingSubmit = false;
+            }
         );
     }
 
     updateForm(data: any) {
         this._webService.putAlmacen(data.id, data).subscribe(
             (response) => {
+                const respData = response.data;
+
                 this.messageService.add({
                     severity: 'success',
                     summary: 'ÉXITO',
@@ -270,14 +290,30 @@ export class NewAlmacen implements OnInit {
                     life: 3000,
                 });
 
+                this.formSubmitted = false;
+                this.loadingSubmit = false;
+
                 this.resetForm();
 
                 this.onClose({
                     type: 'updated',
-                    data: response,
+                    data: respData,
                 });
             },
-            (error) => {}
+            (error) => {
+                const respError: any[] = error.error.errors;
+
+                respError.forEach((e: any) => {
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: e,
+                        life: 3000,
+                    });
+                });
+
+                this.loadingSubmit = false;
+            }
         );
     }
 

@@ -17,6 +17,7 @@ import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { TableModule } from 'primeng/table';
 
 import moment from 'moment';
+import 'moment-timezone';
 
 @Component({
     selector: 'app-list-movimiento',
@@ -179,10 +180,10 @@ export class ListMovimiento implements OnInit {
         }
     }
 
-    getFormatFechaHora(date: any) {
+    formatFechaHoraUtcToLocal(date: any) {
         if (date == null) return null;
 
-        return moment(date).format('DD/MM/YYYY hh:mm A');
+        return moment.utc(date).tz('America/Lima').format('DD/MM/YYYY hh:mm A');
     }
 
     mdRefreshData() {

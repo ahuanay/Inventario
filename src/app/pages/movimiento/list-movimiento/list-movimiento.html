@@ -48,7 +48,7 @@
                     </ng-template>
                     <ng-template #body let-item>
                         <tr>
-                            <td>{{ getFormatFechaHora(item.created_at) }}</td>
+                            <td>{{ formatFechaHoraUtcToLocal(item.created_at) }}</td>
                             <td>{{ item.tipo }}</td>
                             <td>{{ item.motivo }}</td>
                             <td>{{ item.producto?.nombre }}</td>
